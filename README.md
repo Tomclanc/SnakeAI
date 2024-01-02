@@ -62,6 +62,13 @@ pip install -r requirements.txt
 项目文件夹下可以直接运行以下指令进行游戏：
 
 ```bash
+cd [项目上级文件夹]/snake-ai/main
+python .\snake_game.py
+```
+
+
+环境配置完成后，可以在 main/ 文件夹下运行 test_cnn.py 进行测试
+```bash
 cd "所在目录"
 # 运行卷积神经网络模型训练脚本
 python train_cnn.py
@@ -70,9 +77,9 @@ python train_cnn.py
 python test_cnn.py
 ```
 
-模型权重文件存储在项目cnn.py所在目录下的 best_model.pth。测试脚本 test_cnn.py 默认调用trained_models_cnn目录下的模型文件ppo_snake_final.zip也就是训练完成后的模型。如果需要观察模型在不同训练阶段的表现，可将测试脚本中的 MODEL_PATH 变量修改为其它模型的文件路径。
+模型权重文件存储在 main/trained_models_cnn/
 
-如果需要重新训练模型，可以在train_cnn.py所在目录下运行此文件
+如果需要重新训练模型，可以在train_cnn.py所在目录下运行此文件。测试脚本均默认调用训练完成后的模型比如ppo_snake_final.zip。如果需要观察不同训练阶段的 AI 表现，可将测试脚本中的 MODEL_PATH 变量修改为其它模型的文件路径。
 
 
 ### 查看曲线
