@@ -31,9 +31,8 @@ check_gpu_status/ 用于检查 GPU 是否可以被 PyTorch 调用
 
 ## 运行指南
 
-本项目基于 Python 编程语言，主要使用了 PyTorch、Pillow (PIL)、NumPy 等外部代码库进行图像处理和深度学习模型的训练与推理。程序运行使用的 Python 版本为 3.8.18，建议使用 Anaconda 配置 Python 环境。以下配置过程已在 Windows 11系统上测试通过。以下为Windows Terminal指令。
-logs/ 包含训练过程的终端文本和数据曲线（使用 Tensorboard 查看）
-trained_models_cnn/包含卷积网络在不同阶段的模型权重文件，用于在 test_cnn.py运行测试，观看智能代理在不同训练阶段的实际游戏效果。
+本项目基于 Python 编程语言，用到的外部代码库主要包括 Pygame、OpenAI Gym、Stable-Baselines3 等。程序运行使用的 Python 版本为 3.8.16，建议使用 Anaconda 配置 Python 环境。以下为Windows Terminal指令。
+
 
 ### 环境配置
 
