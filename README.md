@@ -12,13 +12,13 @@
 ### 文件结构
 
 ```bash
-├───gpu.py
-├───PyTorch.py
-├───cnn.py
-├───ceshi.py
-├───Start.ps1
-├───requirement.txt
-└───best_model.pth
+├───main
+│   ├───logs
+│   ├───trained_models_cnn
+│   ├───trained_models_mlp
+│   └───scripts
+├───utils
+│   └───scripts
 ```
 
 项目主要包括用于检测GPU的脚本（gpu.py和PyTorch.py），卷积神经网络的实现（cnn.py），模型测试脚本（ceshi.py），后续的自动化启动脚本（Start.ps1），以及训练好的模型文件（best_model.pth）。
@@ -27,12 +27,13 @@
 ## 运行指南
 
 本项目基于 Python 编程语言，主要使用了 PyTorch、Pillow (PIL)、NumPy 等外部代码库进行图像处理和深度学习模型的训练与推理。程序运行使用的 Python 版本为 3.8.18，建议使用 Anaconda 配置 Python 环境。以下配置过程已在 Windows 11系统上测试通过。以下为Windows Terminal指令。
-
+logs/ 包含训练过程的终端文本和数据曲线（使用 Tensorboard 查看）
+trained_models_cnn/包含卷积网络在不同阶段的模型权重文件，用于在 test_cnn.py运行测试，观看智能代理在不同训练阶段的实际游戏效果。
 
 ### 环境配置
 
 ```bash
-# 创建 conda 环境，将其命名为 GallaryAI并激活环境
+# 创建 conda 环境，将其命名为SnakeAI并激活环境
 conda create -n SnakeAI python=3.8.18
 conda activate SnakeAI
 ```
@@ -60,16 +61,14 @@ pip install -r requirements.txt
 cd "所在目录"
 # 运行卷积神经网络模型训练脚本
 python train_cnn.py
-python train_mlp.py
 
 # 运行模型测试脚本
 python test_cnn.py
-python test_mlp.py
 ```
 
-模型权重文件存储在项目cnn.py所在目录下的 best_model.pth。测试脚本 ceshi.py 默认调用文件所在目录下的模型文件也就是训练完成后的模型。如果需要观察模型在不同训练阶段的表现，可以在 cnn.py 中修改模型保存路径。
+模型权重文件存储在项目cnn.py所在目录下的 best_model.pth。测试脚本 test_cnn.py 默认调用trained_models_cnn目录下的模型文件ppo_snake_final.zip也就是训练完成后的模型。如果需要观察模型在不同训练阶段的表现，可将测试脚本中的 MODEL_PATH 变量修改为其它模型的文件路径。
 
-如果需要重新训练模型，可以在cnn.py所在目录下运行此文件
+如果需要重新训练模型，可以在train_cnn.py所在目录下运行此文件
 
 
 ### 查看曲线
