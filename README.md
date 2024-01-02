@@ -60,9 +60,11 @@ pip install -r requirements.txt
 cd "所在目录"
 # 运行卷积神经网络模型训练脚本
 python train_cnn.py
+python train_mlp.py
 
 # 运行模型测试脚本
 python test_cnn.py
+python test_mlp.py
 ```
 
 模型权重文件存储在项目cnn.py所在目录下的 best_model.pth。测试脚本 ceshi.py 默认调用文件所在目录下的模型文件也就是训练完成后的模型。如果需要观察模型在不同训练阶段的表现，可以在 cnn.py 中修改模型保存路径。
