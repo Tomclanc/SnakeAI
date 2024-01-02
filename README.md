@@ -1,13 +1,13 @@
-相册小师，分类筛选照片，例如人物自拍照和风景照片
+贪吃蛇大师，尝试使用智能体漂亮通关贪吃蛇游戏
 
 
-# GallaryAI
+# SnakeAI
 
 [简体中文] | [English](README-EN.md) | [日本語](README_JA.md)
 
-相册小师，分类筛选照片，例如人物自拍照和风景照片
-本项目包含一系列用于图像分类和管理的Python脚本，旨在通过深度学习模型对图库中的图片进行智能分类和整理，例如人物自拍照和风景照片进行识别分类和归档整理。该项目基于卷积神经网络（CNN）实现，并使用PyTorch作为主要的深度学习框架。
-这里提供一个本人训练的模型，下载地址  https://link.jscdn.cn/1drv/aHR0cHM6Ly8xZHJ2Lm1zL3UvcyFBckpVdXJnZURwTHNpNE04aDRleHEyaUtKY0lFd1E_ZT1jMERFY0k.pth
+贪吃蛇大师，尝试使用智能体通关贪吃蛇游戏
+本项目包含一经典游戏贪吃蛇，一次意外训练生成的通关解法，走汉密尔顿环（有些无赖虽然也能通关），还有就是之前cnn训练的结果，和mlp结果。训练数据也会一并公开并打包上传。
+这里提供一个本人训练的模型，下载地址  
 
 ### 文件结构
 
@@ -33,8 +33,8 @@
 
 ```bash
 # 创建 conda 环境，将其命名为 GallaryAI并激活环境
-conda create -n GallaryAI python=3.8.18
-conda activate GallaryAI
+conda create -n SnakeAI python=3.8.18
+conda activate SnakeAI
 ```
 
 
@@ -59,7 +59,7 @@ pip install -r requirements.txt
 ```bash
 cd "所在目录"
 # 运行卷积神经网络模型训练脚本
-python cnn.py
+python test_cnn.py
 
 # 运行模型测试脚本
 python ceshi.py
@@ -76,7 +76,7 @@ python ceshi.py
 
 ```bash
 cd "所在目录"
-tensorboard --logdir=logs/
+tensorboard --logdir=[上级目录]\snakeai\main\logs --bind_all --reload_interval 60
 ```
 
-在浏览器中打开 Tensorboard 服务默认地址 `http://localhost:6006/`，即可查看训练过程的交互式曲线图。
+此命令会将端口发布到公网方便随时随地查看，且每60s自动刷新一次图像。可在浏览器中打开 Tensorboard 服务默认地址 `http://localhost:6006/`，即可查看训练过程的交互式曲线图。
