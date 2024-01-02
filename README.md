@@ -15,14 +15,19 @@
 ├───main
 │   ├───logs
 │   ├───trained_models_cnn
-│   ├───trained_models_mlp
+│   ├───sound
+│   ├───20231217
+│   ├───20231219
+│   ├───20231220
+│   ├───20231222
+│   ├───requirements.txt
 │   └───scripts
 ├───utils
 │   └───scripts
 ```
 
-项目主要包括用于检测GPU的脚本（gpu.py和PyTorch.py），卷积神经网络的实现（cnn.py），模型测试脚本（ceshi.py），后续的自动化启动脚本（Start.ps1），以及训练好的模型文件（best_model.pth）。
-
+项目主要包括用于检测GPU的脚本（gpu.py和PyTorch.py），其中几次的训练数据（文件夹名为数字的），logs文件夹为含训练过程的终端文本和数据曲线（使用 Tensorboard 查看）；requirements.txt为anaconda配置文件，
+check_gpu_status/ 用于检查 GPU 是否可以被 PyTorch 调用
 
 ## 运行指南
 
