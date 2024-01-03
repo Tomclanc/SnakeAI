@@ -75,7 +75,7 @@ python train_cnn.py
 
 # モデルのテストスクリプトを実行します
 python test_cnn.py
-``
+```
 
 モデルの重みファイルは main/trained_models_cnn/ に保存されます。
 
