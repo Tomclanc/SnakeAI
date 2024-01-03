@@ -65,7 +65,7 @@ The following commands can be directly run in the project folder:
 ```bash
 cd "Directory"
 # Run the Convolutional Neural Network model training script
-python .\snake_game.py
+python snake_game.py
 ```
 
 The following commands can be run directly from the project folder to play the game:
