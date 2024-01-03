@@ -63,7 +63,7 @@ pip install -r requirements.txt
 
 ```bash
 cd [项目上级文件夹]/snake-ai/main
-python .\snake_game.py
+python snake_game.py
 ```
 
 
