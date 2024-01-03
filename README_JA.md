@@ -61,9 +61,9 @@ pip install -r requirements.txt
 
 以下のコマンドをプロジェクトフォルダから直接実行することで、ゲームをプレイすることができます：
 
-bash
+```bash
 cd [プロジェクトの親フォルダ]/snake-ai/main
-python . \``bash cd [プロジェクト親フォルダ]/snake-ai/main python .
+python snake_game.py
 ```
 
 
@@ -86,7 +86,7 @@ python test_cnn.py
 
 プロジェクトには、トレーニングプロセスの Tensorboard グラフが含まれているため、Tensorboard を使用して詳細なデータを表示できます。 カーブを直接見るには、VSCode Tensorboard プラグインを使用することをお勧めします：
 
-bash
+```bash
 cd "ディレクトリ"
 tensorboard --logdir=[親ディレクトリ]∕-bind_all --reload_interval 60
 ```
