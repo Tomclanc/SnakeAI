@@ -1,4 +1,4 @@
-贪吃蛇大师，尝试使用智能体漂亮通关贪吃蛇游戏
+贪吃蛇大师，尝试使用智能体漂亮通关贪吃蛇游
 
 
 # SnakeAI
@@ -44,6 +44,7 @@ conda activate SnakeAI
 
 
 Windows:
+
 ```bash 
 # 前往官网下载对应版本的PyTorch。使用 GPU 训练需要手动安装完整版 PyTorch
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
@@ -91,4 +92,4 @@ cd "所在目录"
 tensorboard --logdir=[上级目录]\snakeai\main\logs --bind_all --reload_interval 60
 ```
 
-此命令会将端口发布到公网方便随时随地查看，且每60s自动刷新一次图像。可在浏览器中打开 Tensorboard 服务默认地址 `http://localhost:6006/`，即可查看训练过程的交互式曲线图。
+此命令会将 TensorBoard 绑定到所有可用的网络接口（包括公网IP），以便在外网上访问，方便随时随地查看，且每60s自动刷新一次图像。可在网络中的任何设备，浏览器中打开 Tensorboard 服务默认地址 `http://[您的公网IP]:6006/`，即可查看训练过程的交互式曲线图。
