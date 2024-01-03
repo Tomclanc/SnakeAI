@@ -10,13 +10,18 @@ GallaryAI, a photo classification and sorting tool, such as for selfies and land
 ### File Structure
 
 ```bash
-├───gpu.py
-├───PyTorch.py
-├───cnn.py
-├───ceshi.py
-├───Start.ps1
-├───requirement.txt
-└───best_model.pth
+├───main
+│   ├───logs
+│   ├───trained_models_cnn
+│   ├───sound
+│   ├───20231217
+│   ├───20231219
+│   ├───20231220
+│   ├───20231222
+│   ├───requirements.txt
+│   └───scripts
+├───utils
+│   └───scripts
 ```
 
 The project mainly includes scripts for detecting GPU (gpu.py and PyTorch.py), the implementation of Convolutional Neural Networks (cnn.py), model testing scripts (ceshi.py), subsequent automation start scripts (Start.ps1), and the trained model file (best_model.pth).
@@ -26,13 +31,14 @@ This project is based on the Python programming language and primarily uses exte
 
 ### Environment Setup
 ```bash
-# Create a conda environment, name it GallaryAI, and activate it
-conda create -n GallaryAI python=3.8.18
-conda activate GallaryAI
+# 创建 conda 环境，将其命名为SnakeAI并激活环境
+conda create -n SnakeAI python=3.8.18
+conda activate SnakeAI
 ```
 
 
 Windows:
+
 ```bash 
 # Go to the official website to download the corresponding version of PyTorch. Manual installation of the full version of PyTorch is required for GPU training
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
@@ -66,8 +72,8 @@ If you need to retrain the model, you can run this file in the directory where c
 The project includes Tensorboard curve graphs of the training process, which can be viewed using Tensorboard. It is recommended to use the integrated Tensorboard plugin in VSCode for direct viewing, or you can use the traditional method:
 
 ```bash
-cd "Directory"
-tensorboard --logdir=logs/
+cd "所在目录"
+tensorboard --logdir=[上级目录]\snakeai\main\logs --bind_all --reload_interval 60
 ```
 
 Open the default address of the Tensorboard service http://localhost:6006/ in a browser to view the interactive curve graphs of the training process.
