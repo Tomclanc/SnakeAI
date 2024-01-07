@@ -8,6 +8,7 @@
 贪吃蛇大师，尝试使用智能体通关贪吃蛇游戏
 本项目包含一经典游戏贪吃蛇，一次意外训练生成的通关解法，走汉密尔顿环（有些无赖虽然也能通关），还有就是之前cnn训练的结果，和mlp结果。训练数据也会一并公开并打包上传。
 这里提供一个本人训练的模型，下载地址  
+https://dlink.host/1drv/aHR0cHM6Ly8xZHJ2Lm1zL3UvcyFBckpVdXJnZURwTHNpNUI3Vkxacm0yYU9fQU9aLXc_ZT1YVk01TUo.zip
 
 ### 文件结构
 
