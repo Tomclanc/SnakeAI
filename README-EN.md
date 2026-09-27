@@ -1,3 +1,5 @@
+[2539-step victory demo / 通关演示与复现](README.md#2539-步满盘通关)
+
 Snake Assistant, try to pass the game of Snake beautifully using the smart body
 
 

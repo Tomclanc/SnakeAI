@@ -48,13 +48,11 @@ class SnakeGame:
         self.reset()
 
     def reset(self):
-        random.seed(114514)  # 设置固定的随机种子
         self.snake = [(self.board_size // 2 + i, self.board_size // 2) for i in range(1, -2, -1)] # Initialize the snake with three cells in (row, column) format.
         self.non_snake = set([(row, col) for row in range(self.board_size) for col in range(self.board_size) if (row, col) not in self.snake]) # Initialize the non-snake cells.
         self.direction = "DOWN" # Snake starts downward in each round
         self.food = self._generate_food()
         self.score = 0
-
 
     def step(self, action):
         self._update_direction(action) # Update direction based on action.
@@ -131,7 +129,6 @@ class SnakeGame:
         # Swich Case is supported in Python 3.10+
 
     def _generate_food(self):
-        random.seed(114514)  # 设置固定的随机种子
         if len(self.non_snake) > 0:
             food = random.sample(self.non_snake, 1)[0]
         else: # If the snake occupies the entire board, no need to generate new food and just default to (0, 0).
