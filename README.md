@@ -1,16 +1,29 @@
 # SnakeAI
 
-## 2539 步满盘通关
+基于 [林亦的 snake-ai](https://github.com/linyiLYi/snake-ai)，复现其历史固定种子训练方法，并用自己训练的 CNN 完成 12×12 满盘。
 
-这局由 **CNN / MaskablePPO + 头尾可达安全检查**现场推理完成：12×12 棋盘，**2539 步，1410 分，144/144 格**。没有使用固定汉密尔顿环，也没有为这次演示重新训练模型。
+## 1316 步通关全过程
 
-![贪吃蛇 AI 完整通关过程，4 倍速](docs/media/victory-2539-4x.gif)
+![CNN 1316 步满盘，2 倍速完整过程](docs/media/victory-1316-2x.gif)
 
-GIF 展示从开局到满盘的完整时间范围，4 倍速并抽帧压缩。查看 [正常速度完整 MP4（约 2 分 10 秒，无声）](docs/media/victory-2539.mp4) · [满盘截图](docs/media/victory-final.png) · [对照评测](docs/comparison-report.md)。视频由原游戏渲染器输出，每一步均来自实时模型推理。
+[正常速度完整 MP4（约 69 秒，无声）](docs/media/victory-1316.mp4) · [最终画面](docs/media/victory-1316-final.png)
 
-### 在 Python 中复现这一局
+GIF 展示整局过程，2 倍速并抽帧压缩；MP4 保留每步画面。两者由实际模型推理和游戏渲染生成。
 
-已验证环境：Windows、Python 3.8.20、CPU、PyTorch 2.0.1、NumPy 1.24.4、Gym 0.21.0、Stable-Baselines3 / sb3-contrib 1.8.0。旧版 Gym 的安装需要兼容的 pip / wheel；本演示请使用单独环境。
+| 项目 | 设置 / 结果 |
+|---|---|
+| 模型 | CNN（CnnPolicy）+ MaskablePPO |
+| 通关检查点 | 37,000,000 步 |
+| 环境种子 | 114514；每次生成食物前重新播种 |
+| 动作采样种子 | 114526 |
+| 结果 | 1316 步、1410 分、144/144 格 |
+| 辅助规则 | 原版即时防撞和反向动作屏蔽；没有 BFS 或汉密尔顿策略 |
+
+这是一局已验证、可复现的成功样本，不代表任意种子或每次采样都能通关。它也不是完全无动作屏蔽的“纯 CNN”。记录动作仅用于核对，演示程序每一步仍现场运行模型。
+
+## 运行通关演示
+
+验证环境：Python 3.8.16 / 3.8.20、PyTorch 2.0.1、NumPy 1.24.4、Gym 0.21.0、SB3 / sb3-contrib 1.8.0、Pygame 2.3.0，CPU 推理。
 
 ```powershell
 conda create -n snake-victory python=3.8.20 -y
@@ -18,117 +31,45 @@ conda activate snake-victory
 cd snakeai/main
 python -m pip install pip==23.0.1 setuptools==65.5.0 wheel==0.38.4
 python -m pip install -r requirements-victory.txt
-python test_cnn_victory.py
+python test_cnn_114514.py
 ```
 
-运行后显示原版游戏窗口，终端打印吃果子、得分与最终验证结果；结束后保留满盘画面，关闭窗口即可退出。若项目内已有 `.snake-runtime/python.exe`，脚本会优先使用它；否则使用当前 Python 环境。Python 运行环境本身未提交进仓库。
+游戏窗口显示过程，终端打印得分，结束后保留满盘画面。若存在 `.snake-runtime/python.exe`，入口会优先使用它，否则使用当前环境；运行环境本身未上传。
 
 ```powershell
-# 无窗口快速验证；仍执行模型推理
-python test_cnn_victory.py --headless
-# 加快显示，并在结束后关闭窗口
-python test_cnn_victory.py --frame-delay 0.01 --exit-on-finish
+python test_cnn_114514.py --headless
 ```
 
-这局的环境种子是 **210750013**，模型采用 CPU 确定性推理。原训练脚本的全局种子 `114514` 与这局的环境种子不同。脚本内的参考动作仅用于逐步核对，不替代 AI 决策；模型 SHA-256 为 `81f64d949bf5c1a11f73faa8eb599d0137fedfda248e8c51ee9eebf90a05e2a5`。
+## 本轮训练
 
-达到 400 分后，先模拟每个合法动作，再检查蛇头是否仍能到达蛇尾，屏蔽不安全动作；无安全候选时回退到即时合法动作，最后由 CNN 选择。这是辅助决策，**不保证每个种子都能通关**。100 个独立种子的测试中，本地 CNN 配合该检查，确定性推理通关 39 局，采样推理通关 45 局；其余可能碰撞、循环或达到评测步数上限。详情见评测报告。
+2026-09-28 开始的本轮从新权重训练至 **100,007,936 步**，日志训练耗时 **59,498 秒（约 16 小时 32 分）**。固定种子游戏、奖励和基本动作屏蔽来自历史提交 [e16d230b 的 main_fix_seed](https://github.com/linyiLYi/snake-ai/tree/e16d230b3673c265bd975af45b1be326851b5632/main_fix_seed)，并非当前上游随机食物版本。权重由本项目自行训练，不是作者当年的检查点。
 
-### 来源与改动
+32 个并行环境，n_steps=2048，batch_size=512，n_epochs=4，gamma=0.94；学习率从 2.5e-4 降至 2.5e-6，clip_range 从 0.15 降至 0.025。训练入口增加时间戳输出目录、GPU 检查和简洁终端日志。
 
-项目源自 [林亦的 snake-ai](https://github.com/linyiLYi/snake-ai)，感谢其游戏环境与强化学习实现。本仓库包含本地训练权重、环境与奖励修改；本次新增通关复现脚本、头尾可达动作筛选和展示录像。上游代码遵循 [Apache-2.0](LICENSE)。仓库原有历史模型与 TensorBoard 日志保留；此次评测没有生成新的训练曲线。
+仓库提供 3700 万步通关检查点、1 亿步最终权重，以及本轮 TensorBoard 日志。模型以 `.zip.parts` 分块保存以适应上传连接，演示入口会自动合并并校验 SHA-256；不包含本地约 4 GB 的全部中间检查点。最终权重不等于已验证通关权重。
 
----
-
-
-[简体中文] | [English](README-EN.md) | [日本語](README_JA.md)
-
-贪吃蛇大师，尝试使用智能体通关贪吃蛇游戏
-本项目包含一经典游戏贪吃蛇，一次意外训练生成的通关解法，走汉密尔顿环（有些无赖虽然也能通关），还有就是之前cnn训练的结果，和mlp结果。训练数据也会一并公开并打包上传。
-这里提供一个本人训练的模型，下载地址  
-https://dlink.host/1drv/aHR0cHM6Ly8xZHJ2Lm1zL3UvcyFBckpVdXJnZURwTHNpNUI3Vkxacm0yYU9fQU9aLXc_ZT1YVk01TUo.zip
-
-### 文件结构
-
-```bash
-├───main
-│   ├───logs
-│   ├───trained_models_cnn
-│   ├───sound
-│   ├───20231217
-│   ├───20231219
-│   ├───20231220
-│   ├───20231222
-│   ├───requirements.txt
-│   └───scripts
-├───utils
-│   └───scripts
-```
-
-项目主要包括用于检测GPU的脚本（gpu.py和PyTorch.py），其中几次的训练数据（文件夹名为数字的），logs文件夹为含训练过程的终端文本和数据曲线（使用 Tensorboard 查看）；requirements.txt为anaconda配置文件，
-check_gpu_status/ 用于检查 GPU 是否可以被 PyTorch 调用
-
-## 运行指南
-
-本项目基于 Python 编程语言，用到的外部代码库主要包括 Pygame、OpenAI Gym、Stable-Baselines3 等。程序运行使用的 Python 版本为 3.8.16，建议使用 Anaconda 配置 Python 环境。以下为Windows Terminal指令。
-
-
-### 环境配置
-
-```bash
-# 创建 conda 环境，将其命名为SnakeAI并激活环境
-conda create -n SnakeAI python=3.8.18
-conda activate SnakeAI
-```
-
-
-Windows:
-
-```bash 
-# 前往官网下载对应版本的PyTorch。使用 GPU 训练需要手动安装完整版 PyTorch
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-
-# 运行程序脚本测试 PyTorch 是否能成功调用 GPU
-python gpu.py
-python PyTorch.py
-
-# 安装外部代码库
-pip install -r requirements.txt
-```
-
-
-### 运行训练和测试
-
-项目文件夹下可以直接运行以下指令进行游戏：
-
-```bash
-cd [项目上级文件夹]/snake-ai/main
-python snake_game.py
-```
-
-
-环境配置完成后，可以在 main/ 文件夹下运行 test_cnn.py 进行测试
-```bash
-cd "所在目录"
-# 运行卷积神经网络模型训练脚本
+```powershell
+# 新建一轮训练，需要安装支持本机 GPU 的 PyTorch CUDA 版本
 python train_cnn.py
-
-# 运行模型测试脚本
-python test_cnn.py
+# 查看已上传的本轮训练曲线
+python -m tensorboard.main --logdir logs/PPO_1 --host 127.0.0.1
 ```
 
-模型权重文件存储在 main/trained_models_cnn/
+`test_cnn.py` 默认使用 3700 万步权重，首局固定采样种子以复现成功路线，之后继续采样。`train_cnn.py` 每次在 `runs/时间戳/` 新建输出，不自动续训。
 
-如果需要重新训练模型，可以在train_cnn.py所在目录下运行此文件。测试脚本均默认调用训练完成后的模型比如ppo_snake_final.zip。如果需要观察不同训练阶段的 AI 表现，可将测试脚本中的 MODEL_PATH 变量修改为其它模型的文件路径。
+## 文件说明
 
+- `snakeai/main/test_cnn_114514.py`：独立通关展示入口。
+- `snakeai/main/replays/fixed_114514/`：对应环境及核验记录，权重从 trained_models_cnn 自动合并。
+- `snakeai/main/snake_game_114514.py`：固定种子游戏。
+- `snakeai/main/snake_game_custom_wrapper_cnn.py`：固定种子 CNN 环境。
+- `snakeai/main/trained_models_cnn/`：模型与训练文本日志；目录中还保留此前版本的部分历史检查点，不能混为本轮产物。
+- `snakeai/main/logs/PPO_1/`：本轮 TensorBoard 数据；其他日志目录为历史数据。
 
-### 查看曲线
+## 早期探索
 
-项目中包含了训练过程的 Tensorboard 曲线图，可以使用 Tensorboard 查看其中的详细数据。推荐使用 VSCode 集成的 Tensorboard 插件直接查看，也可以使用传统方法：
+此前的 2539 步演示用了额外头尾 BFS 筛选，与本页新方案不同。旧演示及其完整配套代码请查看 [旧提交](https://github.com/Tomclanc/SnakeAI/tree/95e1e8f75d0ea5bf693f73e483e7dfb4fc29c13e)，不要将旧脚本与当前权重混用。此前对照评测见 [历史报告](docs/comparison-report.md)。
 
-```bash
-cd "所在目录"
-tensorboard --logdir=[上级目录]\snakeai\main\logs --bind_all --reload_interval 60
-```
+感谢林亦开源游戏和强化学习实现。上游代码遵循 [Apache-2.0](LICENSE)。
 
-此命令会将 TensorBoard 绑定到所有可用的网络接口（包括公网IP），以便在外网上访问，方便随时随地查看，且每60s自动刷新一次图像。可在网络中的任何设备，浏览器中打开 Tensorboard 服务默认地址 `http://[您的公网IP]:6006/`，即可查看训练过程的交互式曲线图。
+手动合并最终权重：在 `snakeai/main` 执行 `python -c "from model_weights import ensure_model; print(ensure_model('ppo_snake_final.zip'))"`。

@@ -1,4 +1,4 @@
-[2539-step victory demo / 通关演示与复现](README.md#2539-步满盘通关)
+[1316-step CNN victory / 固定种子通关演示](README.md#1316-步通关全过程)
 
 贪吃蛇大师，尝试使用智能体漂亮通关贪吃蛇游戏
 

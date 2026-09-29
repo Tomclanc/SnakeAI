@@ -1,4 +1,4 @@
-[2539-step victory demo / 通关演示与复现](README.md#2539-步满盘通关)
+[1316-step CNN victory / 固定种子通关演示](README.md#1316-步通关全过程)
 
 Snake Assistant, try to pass the game of Snake beautifully using the smart body
 

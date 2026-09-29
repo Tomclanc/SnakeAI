@@ -1,158 +1,130 @@
 import time
 import random
-
+import os
+from pathlib import Path
 import torch
+
+PROJECT_DIR = Path(__file__).resolve().parent
+os.chdir(str(PROJECT_DIR))
+
 from sb3_contrib import MaskablePPO
+# import numpy as np # For debugging.
+# import matplotlib.pyplot as plt # For checking raw observation.
 
 from snake_game_custom_wrapper_cnn import SnakeEnv
 
-
-GLOBAL_SEED = 114514
-
-if torch.backends.mps.is_available():
-    MODEL_PATH = r"trained_models_cnn_mps/ppo_snake_final"
-else:
-    MODEL_PATH = r"trained_models_cnn/ppo_snake_final"
+from model_weights import ensure_model
+MODEL_PATH = str(ensure_model("ppo_snake_37000000_steps.zip"))
 
 NUM_EPISODE = 10
 
-# 批量测试建议 False，想看画面再改 True
 RENDER = True
+FRAME_DELAY = 0.01 # 0.01 fast, 0.05 slow
+ROUND_DELAY = 5
 
-FRAME_DELAY = 0.05
-ROUND_DELAY = 3
+FIX_SEED = True
+SEED_VALUE = 114514
 
-ACTION_NAMES = ["UP", "LEFT", "RIGHT", "DOWN"]
+seed = random.randint(0, 1e9)
+if FIX_SEED:
+    print(f"Using fixed seed {SEED_VALUE} for testing.")
+else:
+    print(f"Using seed = {seed} for testing.")
 
+if RENDER:
+    if FIX_SEED:
+        env = SnakeEnv(seed=SEED_VALUE, limit_step=False, silent_mode=False, fix_seed=True)
+    else:
+        env = SnakeEnv(seed=seed, limit_step=False, silent_mode=False)
+else:
+    if FIX_SEED:
+        env = SnakeEnv(seed=SEED_VALUE, limit_step=False, silent_mode=True, fix_seed=True)
+    else:
+        env = SnakeEnv(seed=seed, limit_step=False, silent_mode=True)
 
-def build_test_seed_list(num_episode, base_seed=GLOBAL_SEED):
-    rng = random.Random(base_seed)
-    return [rng.randint(0, int(1e9)) for _ in range(num_episode)]
+# Load the trained model
+torch.set_num_threads(1)
+model = MaskablePPO.load(MODEL_PATH, device="cpu", custom_objects={
+    "learning_rate": 0.0, "lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0})
+# Reproduce the verified first episode; later episodes continue sampling normally.
+torch.manual_seed(114526)
 
+total_reward = 0
+total_score = 0
+min_score = 1e9
+max_score = 0
 
-def create_env(seed):
-    if RENDER:
-        return SnakeEnv(
-            seed=seed,
-            limit_step=False,
-            silent_mode=False,
-        )
+for episode in range(NUM_EPISODE):
+    obs = env.reset()
+    episode_reward = 0
+    done = False
 
-    return SnakeEnv(
-        seed=seed,
-        limit_step=False,
-        silent_mode=True,
-    )
+    num_step = 0
+    info = None
 
+    sum_step_reward = 0
 
-def get_env_action_mask(env):
-    """
-    测试阶段获取 action mask。
+    retry_limit = 9
+    print(f"=================== Episode {episode + 1} ==================")
+    while not done:
 
-    优先使用环境内部的 action_masks()：
-        - 返回形状通常是 (4,)
-        - 更符合 MaskablePPO 的单环境预测用法
+        action, _ = model.predict(obs, action_masks=env.get_action_mask())
 
-    如果环境没有 action_masks()，再回退到 get_action_mask()。
-    """
-    if hasattr(env, "action_masks"):
-        return env.action_masks()
+        prev_mask = env.get_action_mask()
+        # if np.sum(prev_mask) <= 1:
+        #     print(prev_mask)
+        #     time.sleep(5)
+        prev_direction = env.game.direction
 
-    return env.get_action_mask().reshape(-1)
+        num_step += 1
 
+        # Check observation.
+        # plt.imshow(obs, interpolation='nearest')
+        # plt.show()
 
-def main():
-    seed_list = build_test_seed_list(NUM_EPISODE, base_seed=GLOBAL_SEED)
+        obs, reward, done, info = env.step(action)
 
-    print(f"Using deterministic test seed sequence derived from GLOBAL_SEED={GLOBAL_SEED}")
-    print(f"Episode seeds: {seed_list}")
-
-    model = MaskablePPO.load(MODEL_PATH)
-
-    total_reward = 0.0
-    total_score = 0
-    min_score = int(1e9)
-    max_score = 0
-
-    for episode, episode_seed in enumerate(seed_list, start=1):
-        env = create_env(episode_seed)
-
-        obs = env.reset()
-        episode_reward = 0.0
-        done = False
-        num_step = 0
-        info = None
-        sum_step_reward = 0.0
-
-        print(f"=================== Episode {episode} | seed={episode_seed} ==================")
-
-        while not done:
-            action_mask = get_env_action_mask(env)
-
-            action, _ = model.predict(
-                obs,
-                deterministic=True,
-                action_masks=action_mask,
-            )
-
-            action = int(action)
-
-            num_step += 1
-            obs, reward, done, info = env.step(action)
-
-            if done:
-                if info["snake_size"] == env.game.grid_size:
-                    print(f"You are BREATHTAKING! Victory reward: {reward:.4f}.")
-                else:
-                    last_action = ACTION_NAMES[action]
-                    print(f"Gameover Penalty: {reward:.4f}. Last action: {last_action}")
-
-            elif info["food_obtained"]:
-                print(
-                    f"Food obtained at step {num_step:04d}. "
-                    f"Food Reward: {reward:.4f}. "
-                    f"Accumulated Move Reward: {sum_step_reward:.4f}. "
-                    f"Score: {env.game.score}"
-                )
-                sum_step_reward = 0.0
-
+        if done:
+            if info["snake_size"] == env.game.board_size ** 2:
+                print(f"You are BREATHTAKING! Victory reward: {reward:.4f}.")
             else:
-                sum_step_reward += reward
+                last_action = ["UP", "LEFT", "RIGHT", "DOWN"][action]
+                print(f"Gameover Penalty: {reward:.4f}. Last action: {last_action}")
 
-            episode_reward += reward
+            # print(f"Previous direction: {prev_direction}")
+            # print(f"Final direction: {env.game.direction}")
+            # print(f"Prev mask: {prev_mask}")
+            # print(f"Current mask: {env.get_action_mask()}")
+            # time.sleep(6000)
 
-            if RENDER:
-                env.render()
-                time.sleep(FRAME_DELAY)
+        elif info["food_obtained"]:
+            # print(f"Food obtained at step {num_step:04d}. Food Reward: {reward:.4f}. Step Reward: {sum_step_reward:.4f}")
+            print(f"Food obtained at step {num_step:04d}. Food Reward: {reward:.4f}. Step Reward: {sum_step_reward:.4f}")
+            # print(info["reward_step_counter"]) # Debug
+            sum_step_reward = 0 # Debug
 
-        episode_score = env.game.score
+        else:
+            sum_step_reward += reward
+            # print(info["step_reward"], info["snake_size"]) # Debug
 
-        min_score = min(min_score, episode_score)
-        max_score = max(max_score, episode_score)
-
-        snake_size = info["snake_size"] + 1
-
-        print(
-            f"Episode {episode}: Reward Sum: {episode_reward:.4f}, "
-            f"Score: {episode_score}, "
-            f"Total Steps: {num_step}, "
-            f"Snake Size: {snake_size}"
-        )
-
-        total_reward += episode_reward
-        total_score += episode_score
-
-        env.close()
-
+        episode_reward += reward
         if RENDER:
-            time.sleep(ROUND_DELAY)
+            env.render()
+            time.sleep(FRAME_DELAY)
 
-    print("=================== Summary ==================")
-    print(f"Average Score: {total_score / NUM_EPISODE}")
-    print(f"Min Score: {min_score}")
-    print(f"Max Score: {max_score}")
-    print(f"Average Reward: {total_reward / NUM_EPISODE:.4f}")
+    episode_score = env.game.score
+    if episode_score < min_score:
+        min_score = episode_score
+    if episode_score > max_score:
+        max_score = episode_score
 
+    snake_size = info["snake_size"]
+    print(f"Episode {episode + 1}: Reward Sum: {episode_reward:.4f}, Score: {episode_score}, Total Steps: {num_step}, Snake Size: {snake_size}")
+    total_reward += episode_reward
+    total_score += env.game.score
+    if RENDER:
+        time.sleep(ROUND_DELAY)
 
-if __name__ == "__main__":
-    main()
+env.close()
+print(f"=================== Summary ==================")
+print(f"Average Score: {total_score / NUM_EPISODE}, Min Score: {min_score}, Max Score: {max_score}, Average reward: {total_reward / NUM_EPISODE}")

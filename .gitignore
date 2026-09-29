@@ -2,3 +2,7 @@ __pycache__/
 *.py[cod]
 .snake-runtime/
 .venv/
+
+snakeai/main/trained_models_cnn/ppo_snake_37000000_steps.zip
+snakeai/main/trained_models_cnn/ppo_snake_final.zip
+*.partial
