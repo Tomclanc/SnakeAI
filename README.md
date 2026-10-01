@@ -6,9 +6,9 @@
 
 ![CNN 1316 步满盘，2 倍速完整过程](docs/media/victory-1316-2x.gif)
 
-[正常速度完整 MP4（约 69 秒，无声）](docs/media/victory-1316.mp4) · [最终画面](docs/media/victory-1316-final.png)
+[正常速度完整 MP4（约 69 秒，有声）](docs/media/victory-1316-with-sound.mp4) · [无声版](docs/media/victory-1316.mp4) · [最终画面](docs/media/victory-1316-final.png)
 
-GIF 展示整局过程，2 倍速并抽帧压缩；MP4 保留每步画面。两者由实际模型推理和游戏渲染生成。
+GIF 展示整局过程，2 倍速并抽帧压缩；MP4 保留每步画面。两者由实际模型推理和游戏渲染生成。有声版保留原视频画面和速度，按通关记录同步加入 141 次吃食物音效，并在 144/144 满盘时播放胜利音效。
 
 | 项目 | 设置 / 结果 |
 |---|---|
